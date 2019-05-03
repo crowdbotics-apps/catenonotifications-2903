@@ -19,7 +19,7 @@ export const sendPush = (pushTokens, type) => {
     messages.push({
       to: pushToken,
       sound: 'default',
-      body: 'This is a test notification',
+      body: notificationBody(type),
       data: { withSome: 'data' },
     })
   }
@@ -49,4 +49,21 @@ export const sendPush = (pushTokens, type) => {
       }
     }
   })();
+}
+
+
+const notificationBody = (type) => {
+  if(type === 'breakfastStart') {
+    return 'Upload your breakfast'
+  } else if (type === 'lunchStart') {
+    return 'Upload your lunch'
+  } else if (type === 'dinnerStart'){
+    return 'Upload your dinner'
+  } else if (type === 'breakfastEnd') {
+    return 'You have one hour left to upload your breakfast'
+  } else if (type === 'lunchEnd') {
+    return 'You have one hour left to upload your lunch'
+  } else if (type === 'dinnerEnd') {
+    return 'You have one hour left to upload your dinner'
+  }
 }

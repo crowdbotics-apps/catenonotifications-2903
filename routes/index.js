@@ -2,6 +2,16 @@ var express = require('express');
 var router = express.Router();
 import { sendPush } from '../services/pushNotifications.js';
 const { admin } = require('../config/firebase.js');
+import moment from 'moment-timezone';
+var schedule = require('node-schedule');
+
+var rule = new schedule.RecurrenceRule();
+rule.minute = 0;
+
+var job = schedule.scheduleJob(rule, (fireDate) => {
+  getActiveCompetitions()
+  console.log('This job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
+});
 
 const snapshotToArray = (snap) => {
   const arr = [];
@@ -16,27 +26,38 @@ const getActiveCompetitions = () => {
   competitionRef.once('value')
     .then(snapshot => snapshotToArray(snapshot))
     .then(competitions => competitions.filter(x => x.started && !x.ended))
-    .then(competitions => getPlayers(competitions))
+    .then(competitions => checkTimezone(competitions))
     .catch(err => console.log(err));
 }
 
-const getPlayers = (competitions) => {
-  // console.log(competitions)
-  competitions.map(competition => getPushToken(competition.players))
+const checkTimezone = (competitions) => {
+  competitions.map(competition => {
+    const currentHour = moment().tz(competition.timezone).hours();
+    if (currentHour === 6){
+      getPlayers(competitions, 'breakfastStart')
+    } else if (currentHour === 11) {
+      getPlayers(competitions, 'lunchStart')
+    } else if (currentHour === 17){
+      getPlayers(competitions, 'dinnerStart')
+    } else if (currentHour === 9) {
+      getPlayers(competitions, 'breakfastEnd')
+    } else if (currentHour === 14) {
+      getPlayers(competitions, 'lunchEnd')
+    } else if (currentHour === 19) {
+      getPlayers(competitions, 'dinnerEnd')
+    }
+  })
 }
 
-const getPushToken = (players) => {
+const getPlayers = (competitions, type) => {
+  competitions.map(competition => getPushToken(competition.players, type))
+}
+
+const getPushToken = (players, type) => {
   const pushTokens = players.map(player => player.pushToken)
-  console.log(pushTokens)
-  sendPush(pushTokens)
+  console.log(pushTokens, type)
+  sendPush(pushTokens, type)
 }
-
-// const sendPushNotification = (pushToken) => {
-//   console.log(pushToken)
-//   sendPush(pushToken)
-// }
-
-getActiveCompetitions()
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
