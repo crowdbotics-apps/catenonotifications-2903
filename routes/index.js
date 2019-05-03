@@ -5,14 +5,18 @@ const { admin } = require('../config/firebase.js');
 import moment from 'moment-timezone';
 var schedule = require('node-schedule');
 
+// Set scheduler rules
+// Every hour when minutes are 0
 var rule = new schedule.RecurrenceRule();
 rule.minute = 0;
 
+// Scheduler job
 var job = schedule.scheduleJob(rule, (fireDate) => {
   getActiveCompetitions()
   console.log('This job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
+// Transform firebase object to array
 const snapshotToArray = (snap) => {
   const arr = [];
   snap.forEach(res => {
@@ -21,6 +25,7 @@ const snapshotToArray = (snap) => {
   return arr;
 };
 
+// Get competitions and filter only active ( started and not ended )
 const getActiveCompetitions = () => {
   const competitionRef = admin.database().ref('competitions');
   competitionRef.once('value')
@@ -30,6 +35,8 @@ const getActiveCompetitions = () => {
     .catch(err => console.log(err));
 }
 
+// Check what hour is in competition timezone
+// Set notification type based on timezone
 const checkTimezone = (competitions) => {
   competitions.map(competition => {
     const currentHour = moment().tz(competition.timezone).hours();
@@ -49,10 +56,12 @@ const checkTimezone = (competitions) => {
   })
 }
 
+// Get players from competition
 const getPlayers = (competitions, type) => {
   competitions.map(competition => getPushToken(competition.players, type))
 }
 
+// Get push token from players and send push
 const getPushToken = (players, type) => {
   const pushTokens = players.map(player => player.pushToken)
   console.log(pushTokens, type)
