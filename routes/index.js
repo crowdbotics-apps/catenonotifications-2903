@@ -16,17 +16,25 @@ const getActiveCompetitions = () => {
   competitionRef.once('value')
     .then(snapshot => snapshotToArray(snapshot))
     .then(competitions => competitions.filter(x => x.started && !x.ended))
-    .then(competitions => console.log(competitions))
+    .then(competitions => getPlayers(competitions))
     .catch(err => console.log(err));
 }
 
 const getPlayers = (competitions) => {
-  competitions.map(competition => competition)
+  // console.log(competitions)
+  competitions.map(competition => getPushToken(competition.players))
 }
 
-const sendPushNotification = (type) => {
-
+const getPushToken = (players) => {
+  const pushTokens = players.map(player => player.pushToken)
+  console.log(pushTokens)
+  sendPush(pushTokens)
 }
+
+// const sendPushNotification = (pushToken) => {
+//   console.log(pushToken)
+//   sendPush(pushToken)
+// }
 
 getActiveCompetitions()
 
