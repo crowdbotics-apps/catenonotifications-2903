@@ -1,15 +1,33 @@
 var express = require('express');
 var router = express.Router();
-var path = require('path');
-var VIEWS_DIR = path.resolve(__dirname, '../client/public/views');
+const { admin } = require('../config/firebase.js');
 
-module.exports = function(app) {
-	// API Routes
-	app.use('/api/user', require(path.resolve(__dirname, './api/v1/user.js')));
-
-	/* GET home page. */
-	app.route('/*')
-		.get(function (req, res) {
-		  res.sendFile(path.join(VIEWS_DIR, '/index.html'));
-		});
+const snapshotToArray = (snap) => {
+  const arr = [];
+  snap.forEach(res => {
+     arr.push(res.val()); // eslint-disable-line
+  });
+  return arr;
 };
+
+const getActiveCompetitions = () => {
+  const competitionRef = admin.database().ref('competitions');
+
+   competitionRef.once('value')
+    .then(snapshot => snapshotToArray(snapshot))
+    .then(competitions => competitions.filter(x => x.started && !x.ended))
+    .then(competitions => {
+      console.log(competitions)
+      return competitions
+    })
+    .catch(err => console.log(err));
+}
+
+getActiveCompetitions()
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Express' });
+});
+
+module.exports = router;
