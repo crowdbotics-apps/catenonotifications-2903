@@ -6,7 +6,7 @@ import moment from 'moment-timezone';
 var schedule = require('node-schedule');
 
 // Set scheduler rules
-// Every hour when minutes are 0
+// Set to every hour when minutes are 0
 var rule = new schedule.RecurrenceRule();
 rule.minute = 0;
 
@@ -25,7 +25,7 @@ const snapshotToArray = (snap) => {
   return arr;
 };
 
-// Get competitions and filter only active ( started and not ended )
+// Get competitions and filter only active ( started and not ended ) competitions
 const getActiveCompetitions = () => {
   const competitionRef = admin.database().ref('competitions');
   competitionRef.once('value')
@@ -69,8 +69,8 @@ const getPushToken = (players, type) => {
 }
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+// router.get('/', function(req, res, next) {
+//   res.render('index', { title: 'Cateno' });
+// });
 
 module.exports = router;
