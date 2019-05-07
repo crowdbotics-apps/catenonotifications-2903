@@ -65,5 +65,9 @@ const notificationBody = (type) => {
     return 'You have one hour left to upload your lunch'
   } else if (type === 'dinnerEnd') {
     return 'You have one hour left to upload your dinner'
+  } else if (type === 'ratingComplete') {
+    return 'Your meal has been rated'
+  } else if (type === 'lifeLost') {
+    return 'Oh no! You have lost a life'
   }
 }
