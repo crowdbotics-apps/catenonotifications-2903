@@ -1,19 +1,32 @@
 var express = require('express');
 var router = express.Router();
 import { sendPush } from '../services/pushNotifications.js';
+import { runGameEngine } from '../services/gameEngine.js';
+
 const { admin } = require('../config/firebase.js');
 import moment from 'moment-timezone';
 var schedule = require('node-schedule');
 
-// Set scheduler rules
+// Set push scheduler rules
 // Set to every hour when minutes are 0
-var rule = new schedule.RecurrenceRule();
-rule.minute = 0;
+var pushRule = new schedule.RecurrenceRule();
+pushRule.minute = 0;
 
-// Scheduler job
-var job = schedule.scheduleJob(rule, (fireDate) => {
-  getActiveCompetitions()
-  console.log('This job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
+// Push Scheduler job
+var pushjob = schedule.scheduleJob(pushRule, (fireDate) => {
+  getActiveCompetitions('push')
+  console.log('Push job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
+});
+
+// Set game engine scheduler rules
+// Set to every hour when minutes are 0
+var updateGameRule = new schedule.RecurrenceRule();
+updateGameRule.second = 0;
+
+// Push Scheduler job
+var updateGamejob = schedule.scheduleJob(updateGameRule, (fireDate) => {
+  getActiveCompetitions('game')
+  console.log('Match engine job was supposed at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
 // Transform firebase object to array
@@ -26,12 +39,18 @@ const snapshotToArray = (snap) => {
 };
 
 // Get competitions and filter only active ( started and not ended ) competitions
-const getActiveCompetitions = () => {
+const getActiveCompetitions = (type) => {
   const competitionRef = admin.database().ref('competitions');
   competitionRef.once('value')
     .then(snapshot => snapshotToArray(snapshot))
     .then(competitions => competitions.filter(x => x.started && !x.ended))
-    .then(competitions => checkTimezone(competitions))
+    .then(competitions => {
+      if(type === 'push'){
+        checkTimezone(competitions)
+      } else if (type === 'game'){
+        runGameEngine(competitions)
+      }
+    })
     .catch(err => console.log(err));
 }
 
