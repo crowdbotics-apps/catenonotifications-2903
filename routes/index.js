@@ -1,31 +1,31 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 import { sendPush } from '../services/pushNotifications.js';
 import { runGameEngine } from '../services/gameEngine.js';
 
 const { admin } = require('../config/firebase.js');
 import moment from 'moment-timezone';
-var schedule = require('node-schedule');
+const schedule = require('node-schedule');
 
 // Set push scheduler rules
 // Set to every hour when minutes are 0
-var pushRule = new schedule.RecurrenceRule();
-pushRule.minute = 0;
+const pushRule = new schedule.RecurrenceRule();
+pushRule.minute = 0; // eslint-disable-line
 
 // Push Scheduler job
-var pushjob = schedule.scheduleJob(pushRule, (fireDate) => {
-  getActiveCompetitions('push')
+const pushjob = schedule.scheduleJob(pushRule, (fireDate) => {
+  getActiveCompetitions('push');
   console.log('Push job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
 // Set game engine scheduler rules
-// Set to every hour when minutes are 0
-var updateGameRule = new schedule.RecurrenceRule();
-updateGameRule.second = 0;
+// Set to every minute when secondes are 30
+const updateGameRule = new schedule.RecurrenceRule();
+updateGameRule.second = 30; // eslint-disable-line
 
 // Push Scheduler job
-var updateGamejob = schedule.scheduleJob(updateGameRule, (fireDate) => {
-  getActiveCompetitions('game')
+const updateGamejob = schedule.scheduleJob(updateGameRule, (fireDate) => {
+  getActiveCompetitions('game');
   console.log('Match engine job was supposed at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
@@ -45,14 +45,14 @@ const getActiveCompetitions = (type) => {
     .then(snapshot => snapshotToArray(snapshot))
     .then(competitions => competitions.filter(x => x.started && !x.ended))
     .then(competitions => {
-      if(type === 'push'){
-        checkTimezone(competitions)
+      if (type === 'push'){
+        checkTimezone(competitions);
       } else if (type === 'game'){
-        runGameEngine(competitions)
+        runGameEngine(competitions);
       }
     })
     .catch(err => console.log(err));
-}
+};
 
 // Check what hour is in competition timezone
 // Set notification type based on timezone
@@ -60,32 +60,32 @@ const checkTimezone = (competitions) => {
   competitions.map(competition => {
     const currentHour = moment().tz(competition.timezone).hours();
     if (currentHour === 6){
-      getPlayers(competitions, 'breakfastStart')
+      getPlayers(competitions, 'breakfastStart');
     } else if (currentHour === 11) {
-      getPlayers(competitions, 'lunchStart')
+      getPlayers(competitions, 'lunchStart');
     } else if (currentHour === 17){
-      getPlayers(competitions, 'dinnerStart')
+      getPlayers(competitions, 'dinnerStart');
     } else if (currentHour === 9) {
-      getPlayers(competitions, 'breakfastEnd')
+      getPlayers(competitions, 'breakfastEnd');
     } else if (currentHour === 14) {
-      getPlayers(competitions, 'lunchEnd')
+      getPlayers(competitions, 'lunchEnd');
     } else if (currentHour === 19) {
-      getPlayers(competitions, 'dinnerEnd')
+      getPlayers(competitions, 'dinnerEnd');
     }
-  })
-}
+  });
+};
 
 // Get players from competition
 const getPlayers = (competitions, type) => {
-  competitions.map(competition => getPushToken(competition.players, type))
-}
+  competitions.map(competition => getPushToken(competition.players, type));
+};
 
 // Get push token from players and send push
 const getPushToken = (players, type) => {
-  const pushTokens = players.map(player => player.pushToken)
-  console.log(pushTokens, type)
-  sendPush(pushTokens, type)
-}
+  const pushTokens = players.map(player => player.pushToken);
+  console.log(pushTokens, type);
+  sendPush(pushTokens, type);
+};
 
 /* GET home page. */
 // router.get('/', function(req, res, next) {
