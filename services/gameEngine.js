@@ -115,28 +115,6 @@ const calculateGameData = (competition) => {
 
           }
 
-          if (player.val().activeMeal === 'dinner' && currentHour < 6) {
-            imagesRef
-              .once('value')
-              .then(snapshot => snapshotToArray(snapshot))
-              .then(images => {
-                images.some(img => isDinnerUploaded(competition, img, player.val())) === false
-                ? player.ref.update({
-                    lives: prevLives - 1,
-                    activeMeal: 'breakfast'
-                  })
-                  .then(() => {
-                    sendSystemMessage(competition, 'You lost a life for not uploading a dinner!');
-                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a dinner!');
-                  })
-                  .then(() => checkForWinner(competition, snapshot))
-                  .catch(err => console.log(err))
-
-                : console.log('dinner uploaded');
-              });
-
-          }
-
           if (!player.val().activeMeal) {
             player.ref.update({
               activeMeal: currentHour < 10
