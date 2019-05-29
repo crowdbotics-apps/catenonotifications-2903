@@ -58,7 +58,7 @@ const calculateGameData = (competition) => {
                   })
                   .then(() => {
                     sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a breakfast!`);
-                    sendPushNotification(competition, 'lifeLost', player.val().uid);
+                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a breakfast!');
                   })
                   .then(() => checkForWinner(competition, snapshot))
                   .catch(err => console.log(err))
@@ -84,7 +84,7 @@ const calculateGameData = (competition) => {
                   })
                   .then(() => {
                     sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a lunch!`);
-                    sendPushNotification(competition, 'lifeLost', player.val().uid);
+                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a lunch!');
                   })
                   .then(() => checkForWinner(competition, snapshot))
                   .catch(err => console.log(err))
@@ -105,7 +105,7 @@ const calculateGameData = (competition) => {
                   })
                   .then(() => {
                     sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a dinner!`);
-                    sendPushNotification(competition, 'lifeLost', player.val().uid);
+                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a dinner!');
                   })
                   .then(() => checkForWinner(competition, snapshot))
                   .catch(err => console.log(err))
@@ -126,8 +126,8 @@ const calculateGameData = (competition) => {
                     activeMeal: 'breakfast'
                   })
                   .then(() => {
-                    sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a dinner!`);
-                    sendPushNotification(competition, 'lifeLost', player.val().uid);
+                    sendSystemMessage(competition, 'You lost a life for not uploading a dinner!');
+                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a dinner!');
                   })
                   .then(() => checkForWinner(competition, snapshot))
                   .catch(err => console.log(err))
@@ -252,7 +252,7 @@ const sendSystemMessage = (competition, message) => {
 
 
 // Get push token and send notification
-const sendPushNotification = (competition, type, userId) => {
+const sendPushNotification = (competition, type, userId, text) => {
   const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
 
   competitionRef.child('players')
@@ -261,7 +261,7 @@ const sendPushNotification = (competition, type, userId) => {
       snapshot.forEach(player => {
         if (player.val().uid === userId) {
           const pushToken = player.val().pushToken;
-          sendPush([pushToken], type);
+          sendPush([pushToken], type, text);
         }
       });
     })

@@ -3,7 +3,7 @@ import Expo from 'expo-server-sdk';
 // Create a new Expo SDK client
 let expo = new Expo();
 
-export const sendPush = (pushTokens, type) => {
+export const sendPush = (pushTokens, type, text) => {
   // Create the messages that you want to send to clents
   let messages = [];
   for (let pushToken of pushTokens) {
@@ -19,9 +19,9 @@ export const sendPush = (pushTokens, type) => {
     messages.push({
       to: pushToken,
       sound: 'default',
-      body: notificationBody(type),
+      body: notificationBody(type, text),
       data: { withSome: 'data' },
-    })
+    });
   }
 
   // The Expo push notification service accepts batches of notifications so
@@ -49,25 +49,26 @@ export const sendPush = (pushTokens, type) => {
       }
     }
   })();
-}
+};
 
 
-const notificationBody = (type) => {
-  if(type === 'breakfastStart') {
-    return 'Upload your breakfast'
+const notificationBody = (type, text) => {
+  console.log(text);
+  if (type === 'breakfastStart') {
+    return 'Upload your breakfast';
   } else if (type === 'lunchStart') {
-    return 'Upload your lunch'
+    return 'Upload your lunch';
   } else if (type === 'dinnerStart'){
-    return 'Upload your dinner'
+    return 'Upload your dinner';
   } else if (type === 'breakfastEnd') {
-    return 'You have one hour left to upload your breakfast'
+    return 'You have one hour left to upload your breakfast';
   } else if (type === 'lunchEnd') {
-    return 'You have one hour left to upload your lunch'
+    return 'You have one hour left to upload your lunch';
   } else if (type === 'dinnerEnd') {
-    return 'You have one hour left to upload your dinner'
+    return 'You have one hour left to upload your dinner';
   } else if (type === 'ratingComplete') {
-    return 'Your meal has been rated'
+    return 'Your meal has been rated';
   } else if (type === 'lifeLost') {
-    return 'Oh no! You have lost a life'
+    return text;
   }
-}
+};

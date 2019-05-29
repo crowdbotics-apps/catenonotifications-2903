@@ -18,13 +18,13 @@ const pushjob = schedule.scheduleJob(pushRule, (fireDate) => {
   console.log('Push job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
-// Set game engine scheduler rules
-// Set to every minute when secondes are 30
-const updateGameRule = new schedule.RecurrenceRule();
-updateGameRule.second = 30; // eslint-disable-line
+// // Set game engine scheduler rules
+// // Set to every minute when secondes are 30
+// const updateGameRule = new schedule.RecurrenceRule();
+// updateGameRule.second = 30; // eslint-disable-line
 
-// Push Scheduler job
-const updateGamejob = schedule.scheduleJob(updateGameRule, (fireDate) => {
+// Game engine job every 60 sec
+const updateGamejob = schedule.scheduleJob('*/5 * * * * *', (fireDate) => {
   getActiveCompetitions('game');
   console.log('Match engine job was supposed at ' + fireDate + ', but actually ran at ' + new Date());
 });
@@ -61,14 +61,14 @@ const checkTimezone = (competitions) => {
     const currentHour = moment().tz(competition.timezone).hours();
     if (currentHour === 6){
       getPlayers(competitions, 'breakfastStart');
-    } else if (currentHour === 11) {
-      getPlayers(competitions, 'lunchStart');
-    } else if (currentHour === 17){
-      getPlayers(competitions, 'dinnerStart');
     } else if (currentHour === 9) {
       getPlayers(competitions, 'breakfastEnd');
+    } else if (currentHour === 11) {
+      getPlayers(competitions, 'lunchStart');
     } else if (currentHour === 14) {
       getPlayers(competitions, 'lunchEnd');
+    } else if (currentHour === 17){
+      getPlayers(competitions, 'dinnerStart');
     } else if (currentHour === 19) {
       getPlayers(competitions, 'dinnerEnd');
     }
