@@ -18,7 +18,6 @@ export const sendPush = (pushTokens, type, text) => {
     // Construct a message (see https://docs.expo.io/versions/latest/guides/push-notifications.html)
     messages.push({
       to: pushToken,
-      sound: 'default',
       body: notificationBody(type, text),
       data: { withSome: 'data' },
     });

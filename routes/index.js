@@ -10,46 +10,28 @@ const schedule = require('node-schedule');
 // Set push scheduler rules
 // Set to every hour when minutes are 0
 const pushRule = new schedule.RecurrenceRule();
-pushRule.minute = 0; // eslint-disable-line
+pushRule.minute = 1; // eslint-disable-line
 
 // Push Scheduler job
 const pushjob = schedule.scheduleJob(pushRule, (fireDate) => {
-  getActiveCompetitions('push');
-  console.log('Push job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
+  getActiveCompetitions();
+  // console.log('Push job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
-// // Set game engine scheduler rules
-// // Set to every minute when secondes are 30
-// const updateGameRule = new schedule.RecurrenceRule();
-// updateGameRule.second = 30; // eslint-disable-line
-
-// Game engine job every 60 sec
 const updateGamejob = schedule.scheduleJob('*/5 * * * * *', (fireDate) => {
-  getActiveCompetitions('game');
-  console.log('Match engine job was supposed at ' + fireDate + ', but actually ran at ' + new Date());
+  runGameEngine();
+  // console.log('Match engine job was supposed at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
-// Transform firebase object to array
-const snapshotToArray = (snap) => {
-  const arr = [];
-  snap.forEach(res => {
-     arr.push(res.val()); // eslint-disable-line
-  });
-  return arr;
-};
 
 // Get competitions and filter only active ( started and not ended ) competitions
-const getActiveCompetitions = (type) => {
+const getActiveCompetitions = () => {
   const competitionRef = admin.database().ref('competitions');
   competitionRef.once('value')
     .then(snapshot => snapshotToArray(snapshot))
     .then(competitions => competitions.filter(x => x.started && !x.ended))
     .then(competitions => {
-      if (type === 'push'){
         checkTimezone(competitions);
-      } else if (type === 'game'){
-        runGameEngine(competitions);
-      }
     })
     .catch(err => console.log(err));
 };
@@ -85,6 +67,15 @@ const getPushToken = (players, type) => {
   const pushTokens = players.map(player => player.pushToken);
   console.log(pushTokens, type);
   sendPush(pushTokens, type);
+};
+
+// Transform firebase object to array
+const snapshotToArray = (snap) => {
+  const arr = [];
+  snap.forEach(res => {
+     arr.push(res.val()); // eslint-disable-line
+  });
+  return arr;
 };
 
 /* GET home page. */

@@ -1,15 +1,20 @@
 const { admin } = require('../config/firebase.js');
 import moment from 'moment-timezone';
 import { sendPush } from './pushNotifications.js';
-
+const schedule = require('node-schedule');
 // import api from '../../../config/api.js';
 
 
-
-export const runGameEngine = (competitions) => {
-  competitions.map(competition => {
-    calculateGameData(competition);
-  });
+// Get competitions and filter only active ( started and not ended ) competitions
+export const runGameEngine = () => {
+  const competitionsRef = admin.database().ref('competitions');
+  competitionsRef.once('value')
+    .then(snapshot => snapshotToArray(snapshot))
+    .then(competitions => competitions.filter(x => x.started && !x.ended))
+    .then(competitions => competitions.map(competition => {
+        calculateGameData(competition);
+    }))
+    .catch(err => console.log(err));
 };
 
 
@@ -18,30 +23,38 @@ export const runGameEngine = (competitions) => {
 // Player will lose a life if forget to upload
 // activeMeal will update
 const calculateGameData = (competition) => {
+  // const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
+  // const imagesRef = admin.database().ref(`images/${competition.uid}`);
 
-  const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
-  const imagesRef = admin.database().ref(`images/${competition.uid}`);
 
-
-  const currentDate = moment().tz(competition.timezone);
-  const startDate = moment(competition.startDate).tz(competition.timezone);
-  const competitionDay = currentDate.diff(startDate, 'days');
-  const currentHour = moment().tz(competition.timezone).hours();
+  // const currentDate = moment().tz(competition.timezone);
+  // const startDate = moment(competition.startDate).tz(competition.timezone);
+  // const competitionDay = currentDate.diff(startDate, 'days');
+  // const currentHour = moment().tz(competition.timezone).hours();
 
   // const yesterdayDate = moment().subtract(1, 'days').tz(competition.timezone).format('ll');
-
-  competitionRef.child('players')
+  // console.log(competition.uid);
+  // console.log(competitionRef);
+  // console.log(competition.uid);
+  admin.database().ref(`competitions/${competition.uid}`).child('players')
     .once('value')
     .then(snapshot => {
+      const currentDate = moment().tz(competition.timezone);
+      const startDate = moment(competition.startDate).tz(competition.timezone);
+      const competitionDay = currentDate.diff(startDate, 'days');
+      const currentHour = moment().tz(competition.timezone).hours();
       if (competitionDay === 30 && competition.started === true) {
+
         checkForWinners(competition, snapshot);
+
       } else if (competitionDay !== 30 && competition.started === true){
+
         snapshot.forEach(player => {
           const prevLives = player.val().lives;
           const prevStreak = player.val().streak;
 
           if (player.val().activeMeal === 'breakfast' && currentHour >= 10) {
-            imagesRef
+            admin.database().ref(`images/${competition.uid}`)
               .once('value')
               .then(snapshot => snapshotToArray(snapshot))
               .then(images => {
@@ -69,7 +82,7 @@ const calculateGameData = (competition) => {
           }
 
           if (player.val().activeMeal === 'lunch' && currentHour >= 15) {
-            imagesRef
+            admin.database().ref(`images/${competition.uid}`)
               .once('value')
               .then(snapshot => snapshotToArray(snapshot))
               .then(images => {
@@ -94,7 +107,7 @@ const calculateGameData = (competition) => {
           }
 
           if (player.val().activeMeal === 'dinner' && currentHour >= 20) {
-            imagesRef
+            admin.database().ref(`images/${competition.uid}`)
               .once('value')
               .then(snapshot => snapshotToArray(snapshot))
               .then(images => {
@@ -131,7 +144,7 @@ const calculateGameData = (competition) => {
     });
 };
 
-// Transform admin object to array
+// Transform firebase object to array
 const snapshotToArray = (snap) => {
   const arr = [];
   snap.forEach(res => {
