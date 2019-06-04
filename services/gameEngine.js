@@ -130,15 +130,17 @@ const calculateGameData = (competition) => {
           }
 
           if (player.val().activeMeal === 'sleep' && currentHour < 6) {
-            activeMeal: currentHour < 10
-                        ? 'breakfast'
-                        : currentHour >= 10 && currentHour < 15
-                        ? 'lunch'
-                        : currentHour >= 15 && currentHour < 20
-                        ? 'dinner'
-                        : currentHour >= 20
-                        ? 'sleep'
-                        : null;
+            player.ref.update({
+              activeMeal: currentHour < 10
+                          ? 'breakfast'
+                          : currentHour >= 10 && currentHour < 15
+                          ? 'lunch'
+                          : currentHour >= 15 && currentHour < 20
+                          ? 'dinner'
+                          : currentHour >= 20
+                          ? 'sleep'
+                          : null
+            });
           }
 
           if (!player.val().activeMeal) {
