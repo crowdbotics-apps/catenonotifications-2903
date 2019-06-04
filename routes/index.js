@@ -18,7 +18,7 @@ const pushjob = schedule.scheduleJob(pushRule, (fireDate) => {
   // console.log('Push job was supposed to run at ' + fireDate + ', but actually ran at ' + new Date());
 });
 
-const updateGamejob = schedule.scheduleJob('*/5 * * * * *', (fireDate) => {
+const updateGamejob = schedule.scheduleJob('*/7 * * * * *', (fireDate) => {
   runGameEngine();
   // console.log('Match engine job was supposed at ' + fireDate + ', but actually ran at ' + new Date());
 });

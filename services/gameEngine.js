@@ -23,19 +23,7 @@ export const runGameEngine = () => {
 // Player will lose a life if forget to upload
 // activeMeal will update
 const calculateGameData = (competition) => {
-  // const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
-  // const imagesRef = admin.database().ref(`images/${competition.uid}`);
 
-
-  // const currentDate = moment().tz(competition.timezone);
-  // const startDate = moment(competition.startDate).tz(competition.timezone);
-  // const competitionDay = currentDate.diff(startDate, 'days');
-  // const currentHour = moment().tz(competition.timezone).hours();
-
-  // const yesterdayDate = moment().subtract(1, 'days').tz(competition.timezone).format('ll');
-  // console.log(competition.uid);
-  // console.log(competitionRef);
-  // console.log(competition.uid);
   admin.database().ref(`competitions/${competition.uid}`).child('players')
     .once('value')
     .then(snapshot => {
@@ -43,12 +31,11 @@ const calculateGameData = (competition) => {
       const startDate = moment(competition.startDate).tz(competition.timezone);
       const competitionDay = currentDate.diff(startDate, 'days');
       const currentHour = moment().tz(competition.timezone).hours();
-      if (competitionDay === 30 && competition.started === true) {
 
+      if (competitionDay === 30 && competition.started === true) {
         checkForWinners(competition, snapshot);
 
-      } else if (competitionDay !== 30 && competition.started === true){
-
+      } else if (competitionDay !== 30 && competition.started && !competition.ended){
         snapshot.forEach(player => {
           const prevLives = player.val().lives;
           const prevStreak = player.val().streak;
@@ -89,7 +76,9 @@ const calculateGameData = (competition) => {
                 images.some(img => isLunchUploaded(competition, img, player.val())) === false
                 ? player.ref.update({
                     lives: prevLives - 1,
-                    activeMeal: currentHour < 20
+                    activeMeal: currentHour >= 10 && currentHour < 15
+                                ? 'lunch'
+                                : currentHour >= 15 && currentHour < 20
                                 ? 'dinner'
                                 : currentHour >= 20
                                 ? 'breakfast'
@@ -114,7 +103,13 @@ const calculateGameData = (competition) => {
                 images.some(img => isDinnerUploaded(competition, img, player.val())) === false
                 ? player.ref.update({
                     lives: prevLives - 1,
-                    activeMeal: 'breakfast'
+                    activeMeal: currentHour >= 10 && currentHour < 15
+                                ? 'lunch'
+                                : currentHour >= 15 && currentHour < 20
+                                ? 'dinner'
+                                : currentHour >= 20
+                                ? 'breakfast'
+                                : null
                   })
                   .then(() => {
                     sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a dinner!`);
@@ -208,15 +203,19 @@ const checkForWinners = (competition, snapshot) => {
 const checkForWinner = (competition, snapshot) => {
   const activePlayers = snapshot.val().filter(player => player.lives > -1);
   if (activePlayers.length === 1) {
-    // alert(`Congratulations! ${activePlayers[0].name} won the competition.`);
     sendSystemMessage(competition, `${activePlayers[0].name} won the competition!`);
-
     const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
-
     competitionRef.update({
       ended: true
     })
-    // .then(() => endCompetitionAction())
+    .catch(err => console.log(err));
+  }
+  if (activePlayers.length === 0) {
+    sendSystemMessage(competition, 'There is no winner!');
+    const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
+    competitionRef.update({
+      ended: true
+    })
     .catch(err => console.log(err));
   }
 };
