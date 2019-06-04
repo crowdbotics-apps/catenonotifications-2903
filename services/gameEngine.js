@@ -48,12 +48,14 @@ const calculateGameData = (competition) => {
                 images.some(img => isBreakfastUploaded(competition, img, player.val())) === false
                 ? player.ref.update({
                     lives: prevLives - 1,
-                    activeMeal: currentHour >= 10 && currentHour < 15
+                    activeMeal: currentHour < 10
+                                ? 'breakfast'
+                                : currentHour >= 10 && currentHour < 15
                                 ? 'lunch'
                                 : currentHour >= 15 && currentHour < 20
                                 ? 'dinner'
                                 : currentHour >= 20
-                                ? 'breakfast'
+                                ? 'sleep'
                                 : null
                   })
                   .then(() => {
@@ -76,12 +78,14 @@ const calculateGameData = (competition) => {
                 images.some(img => isLunchUploaded(competition, img, player.val())) === false
                 ? player.ref.update({
                     lives: prevLives - 1,
-                    activeMeal: currentHour >= 10 && currentHour < 15
+                    activeMeal: currentHour < 10
+                                ? 'breakfast'
+                                : currentHour >= 10 && currentHour < 15
                                 ? 'lunch'
                                 : currentHour >= 15 && currentHour < 20
                                 ? 'dinner'
                                 : currentHour >= 20
-                                ? 'breakfast'
+                                ? 'sleep'
                                 : null
                   })
                   .then(() => {
@@ -103,12 +107,14 @@ const calculateGameData = (competition) => {
                 images.some(img => isDinnerUploaded(competition, img, player.val())) === false
                 ? player.ref.update({
                     lives: prevLives - 1,
-                    activeMeal: currentHour >= 10 && currentHour < 15
+                    activeMeal: currentHour < 10
+                                ? 'breakfast'
+                                : currentHour >= 10 && currentHour < 15
                                 ? 'lunch'
                                 : currentHour >= 15 && currentHour < 20
                                 ? 'dinner'
                                 : currentHour >= 20
-                                ? 'breakfast'
+                                ? 'sleep'
                                 : null
                   })
                   .then(() => {
@@ -131,7 +137,9 @@ const calculateGameData = (competition) => {
                           ? 'lunch'
                           : currentHour >= 15 && currentHour < 20
                           ? 'dinner'
-                          : 'breakfast'
+                          : currentHour >= 20
+                          ? 'sleep'
+                          : null
             });
           }
         });
