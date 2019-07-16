@@ -12,7 +12,7 @@ export const runGameEngine = () => {
     .then(snapshot => snapshotToArray(snapshot))
     .then(competitions => competitions.filter(x => x.started && !x.ended))
     .then(competitions => competitions.map(competition => {
-        calculateGameData(competition);
+      calculateGameData(competition);
     }))
     .catch(err => console.log(err));
 };
@@ -35,7 +35,7 @@ const calculateGameData = (competition) => {
       if (competitionDay === 30 && competition.started === true) {
         checkForWinners(competition, snapshot);
 
-      } else if (competitionDay !== 30 && competition.started && !competition.ended){
+      } else if (competitionDay !== 30 && competition.started && !competition.ended) {
         snapshot.forEach(player => {
           const prevLives = player.val().lives;
           const prevStreak = player.val().streak;
@@ -46,26 +46,28 @@ const calculateGameData = (competition) => {
               .then(snapshot => snapshotToArray(snapshot))
               .then(images => {
                 images.some(img => isBreakfastUploaded(competition, img, player.val())) === false
-                ? player.ref.update({
+                  ? player.ref.update({
                     lives: prevLives - 1,
                     activeMeal: currentHour < 10
-                                ? 'breakfast'
-                                : currentHour >= 10 && currentHour < 15
-                                ? 'lunch'
-                                : currentHour >= 15 && currentHour < 20
-                                ? 'dinner'
-                                : currentHour >= 20
-                                ? 'sleep'
-                                : null
+                      ? 'breakfast'
+                      : currentHour >= 10 && currentHour < 15
+                        ? 'lunch'
+                        : currentHour >= 15 && currentHour < 20
+                          ? 'dinner'
+                          : currentHour >= 20
+                            ? 'sleep'
+                            : null
                   })
-                  .then(() => {
-                    sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a breakfast!`);
-                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a breakfast!');
-                  })
-                  .then(() => checkForWinner(competition, snapshot))
-                  .catch(err => console.log(err))
+                    .then(() => {
+                      if (currentHour == 10) {
+                        sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a breakfast!`);
+                        sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a breakfast!');
+                      }
+                    })
+                    .then(() => checkForWinner(competition, snapshot))
+                    .catch(err => console.log(err))
 
-                : console.log('breakfast uploaded');
+                  : console.log('breakfast uploaded');
               });
 
           }
@@ -76,26 +78,28 @@ const calculateGameData = (competition) => {
               .then(snapshot => snapshotToArray(snapshot))
               .then(images => {
                 images.some(img => isLunchUploaded(competition, img, player.val())) === false
-                ? player.ref.update({
+                  ? player.ref.update({
                     lives: prevLives - 1,
                     activeMeal: currentHour < 10
-                                ? 'breakfast'
-                                : currentHour >= 10 && currentHour < 15
-                                ? 'lunch'
-                                : currentHour >= 15 && currentHour < 20
-                                ? 'dinner'
-                                : currentHour >= 20
-                                ? 'sleep'
-                                : null
+                      ? 'breakfast'
+                      : currentHour >= 10 && currentHour < 15
+                        ? 'lunch'
+                        : currentHour >= 15 && currentHour < 20
+                          ? 'dinner'
+                          : currentHour >= 20
+                            ? 'sleep'
+                            : null
                   })
-                  .then(() => {
-                    sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a lunch!`);
-                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a lunch!');
-                  })
-                  .then(() => checkForWinner(competition, snapshot))
-                  .catch(err => console.log(err))
+                    .then(() => {
+                      if (currentHour == 15) {
+                        sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a lunch!`);
+                        sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a lunch!');
+                      }
+                    })
+                    .then(() => checkForWinner(competition, snapshot))
+                    .catch(err => console.log(err))
 
-                : console.log('lunch uploaded');
+                  : console.log('lunch uploaded');
               });
           }
 
@@ -105,26 +109,28 @@ const calculateGameData = (competition) => {
               .then(snapshot => snapshotToArray(snapshot))
               .then(images => {
                 images.some(img => isDinnerUploaded(competition, img, player.val())) === false
-                ? player.ref.update({
+                  ? player.ref.update({
                     lives: prevLives - 1,
                     activeMeal: currentHour < 10
-                                ? 'breakfast'
-                                : currentHour >= 10 && currentHour < 15
-                                ? 'lunch'
-                                : currentHour >= 15 && currentHour < 20
-                                ? 'dinner'
-                                : currentHour >= 20
-                                ? 'sleep'
-                                : null
+                      ? 'breakfast'
+                      : currentHour >= 10 && currentHour < 15
+                        ? 'lunch'
+                        : currentHour >= 15 && currentHour < 20
+                          ? 'dinner'
+                          : currentHour >= 20
+                            ? 'sleep'
+                            : null
                   })
-                  .then(() => {
-                    sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a dinner!`);
-                    sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a dinner!');
-                  })
-                  .then(() => checkForWinner(competition, snapshot))
-                  .catch(err => console.log(err))
+                    .then(() => {
+                      if (currentHour == 20) {
+                        sendSystemMessage(competition, `${player.val().name} lost a life for not uploading a dinner!`);
+                        sendPushNotification(competition, 'lifeLost', player.val().uid, 'You lost a life for not uploading a dinner!');
+                      }
+                    })
+                    .then(() => checkForWinner(competition, snapshot))
+                    .catch(err => console.log(err))
 
-                : console.log('dinner uploaded');
+                  : console.log('dinner uploaded');
               });
 
           }
@@ -132,28 +138,28 @@ const calculateGameData = (competition) => {
           if (player.val().activeMeal === 'sleep' && currentHour < 6) {
             player.ref.update({
               activeMeal: currentHour < 10
-                          ? 'breakfast'
-                          : currentHour >= 10 && currentHour < 15
-                          ? 'lunch'
-                          : currentHour >= 15 && currentHour < 20
-                          ? 'dinner'
-                          : currentHour >= 20
-                          ? 'sleep'
-                          : null
+                ? 'breakfast'
+                : currentHour >= 10 && currentHour < 15
+                  ? 'lunch'
+                  : currentHour >= 15 && currentHour < 20
+                    ? 'dinner'
+                    : currentHour >= 20
+                      ? 'sleep'
+                      : null
             });
           }
 
           if (!player.val().activeMeal) {
             player.ref.update({
               activeMeal: currentHour < 10
-                          ? 'breakfast'
-                          : currentHour >= 10 && currentHour < 15
-                          ? 'lunch'
-                          : currentHour >= 15 && currentHour < 20
-                          ? 'dinner'
-                          : currentHour >= 20
-                          ? 'sleep'
-                          : null
+                ? 'breakfast'
+                : currentHour >= 10 && currentHour < 15
+                  ? 'lunch'
+                  : currentHour >= 15 && currentHour < 20
+                    ? 'dinner'
+                    : currentHour >= 20
+                      ? 'sleep'
+                      : null
             });
           }
         });
@@ -165,7 +171,7 @@ const calculateGameData = (competition) => {
 const snapshotToArray = (snap) => {
   const arr = [];
   snap.forEach(res => {
-     arr.push(res.val()); // eslint-disable-line
+    arr.push(res.val()); // eslint-disable-line
   });
   return arr;
 };
@@ -212,11 +218,11 @@ const checkForWinners = (competition, snapshot) => {
       sendSystemMessage(competition, `${player.name} won the competition!`);
     });
 
-    const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
+  const competitionRef = admin.database().ref(`competitions/${competition.uid}`);
 
-    competitionRef.update({
-      ended: true
-    })
+  competitionRef.update({
+    ended: true
+  })
     // .then(() => endCompetitionAction())
     .catch(err => console.log(err));
 };
@@ -230,7 +236,7 @@ const checkForWinner = (competition, snapshot) => {
     competitionRef.update({
       ended: true
     })
-    .catch(err => console.log(err));
+      .catch(err => console.log(err));
   }
   if (activePlayers.length === 0) {
     sendSystemMessage(competition, 'There is no winner!');
@@ -238,7 +244,7 @@ const checkForWinner = (competition, snapshot) => {
     competitionRef.update({
       ended: true
     })
-    .catch(err => console.log(err));
+      .catch(err => console.log(err));
   }
 };
 

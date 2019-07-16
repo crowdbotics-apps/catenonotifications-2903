@@ -65,7 +65,6 @@ const getPlayers = (competitions, type) => {
 // Get push token from players and send push
 const getPushToken = (players, type) => {
   const pushTokens = players.map(player => player.pushToken);
-  console.log(pushTokens, type);
   sendPush(pushTokens, type);
 };
 

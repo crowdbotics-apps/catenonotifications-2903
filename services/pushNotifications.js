@@ -52,7 +52,6 @@ export const sendPush = (pushTokens, type, text) => {
 
 
 const notificationBody = (type, text) => {
-  console.log(text);
   if (type === 'breakfastStart') {
     return 'Upload your breakfast';
   } else if (type === 'lunchStart') {
